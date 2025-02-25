@@ -2,9 +2,12 @@
     official reference:
     - https://developers.line.biz/en/docs/messaging-api/nodejs-sample
 */
+const dotenv = require("dotenv");
 const express = require("express");
-import { json, urlencoded } from "express";
-import { request as _request } from "https";
+const { json, urlencoded } = require("body-parser");
+const _request = require("https").request;
+
+dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const TOKEN = process.env.LINE_ACCESS_TOKEN;
@@ -20,16 +23,11 @@ app.get("/", (req, res) => {
     res.sendStatus(200);
 });
 
-app.post("/webhook", function (req, res) {
-    res.send("HTTP POST request sent to the webhook URL!");
-});
-
 app.listen(PORT, () => {
     console.log(`Example app listening at http://localhost:${PORT}`);
 });
 
 app.post("/webhook", function (req, res) {
-    res.send("HTTP POST request sent to the webhook URL!");
     // If the user sends a message to your bot, send a reply message
     if (req.body.events[0].type === "message") {
         // You must stringify reply token and message data to send to the API server
