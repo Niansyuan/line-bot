@@ -1,7 +1,12 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import { VitePluginNode } from 'vite-plugin-node';
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
-})
+    plugins: [
+        ...VitePluginNode({
+            adapter: 'express',
+            appPath: './src/line-bot.js',
+            exportName: "app",
+        }),
+    ],
+});
