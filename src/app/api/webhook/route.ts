@@ -1,11 +1,6 @@
-import https from "https";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from 'next/server';
 
-export const config = {
-    api: {
-        bodyParser: false, // line middleware 內會去轉換 req.body，因此這邊不需要再進行 bodyParser
-    },
-}
+const LINE_ACCESS_TOKEN = process.env.LINE_ACCESS_TOKEN || 'RyrozkcGnn2S/lOsSfcVniY8qCDRL41RmuIH/hZNm06W3ylh8Zm491vdvKJBJUycpR4g7C96eVEc9PFh4pc47sgxIEKJjOpk5aE+RZBtdVmqPPK1T2kVx1zaYBmn/bcl6ZCb4j4IGZ7zAVewnu2ZvAdB04t89/1O/w1cDnyilFU=';
 
 export async function GET() {
     return NextResponse.json(
@@ -16,73 +11,39 @@ export async function GET() {
     );
 }
 
-export async function POST(req: NextRequest) {
-    // @ts-expect-error events
-    const events = req?.body?.events || [];
-    const event = events[0];
+async function replyMessage(replyToken: string, message: string) {
+    const url = 'https://api.line.me/v2/bot/message/reply';
 
-    if (!events.length) {
-        return NextResponse.json(
-            {
-                message: "No event data",
-                test: process.env.NEXT_PUBLIC_LINE_ACCESS_TOKEN
-            },
-            { status: 400 }
-        );
-    }
+    const body = JSON.stringify({
+        replyToken,
+        messages: [{ type: 'text', text: message }],
+    });
 
-    if (event && event.type === "message") {
-        const dataString = JSON.stringify({
-            replyToken: event.replyToken,
-            messages: [
-                { type: "text", text: "Hello, user" },
-                { type: "text", text: "May I help you?" },
-            ],
-        });
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${LINE_ACCESS_TOKEN}`,
+        },
+        body,
+    });
 
-        const headers = {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_LINE_ACCESS_TOKEN}`,
-        };
+    return response.json();
+}
 
-        const webhookOptions = {
-            hostname: "api.line.me",
-            path: "/v2/bot/message/reply",
-            method: "POST",
-            headers,
-            body: dataString,
-        };
-        try {
-            const responseBody = await new Promise((resolve, reject) => {
-                const request = https.request(webhookOptions, (response) => {
-                    let data = "";
+export async function POST(req: Request) {
+    const body = JSON.parse(JSON.stringify(await req.json()));
 
-                    response.on("data", (chunk) => {
-                        data += chunk;
-                    });
+    const events = body.events || [];
 
-                    response.on("end", () => {
-                        if (response.statusCode === 200) {
-                            resolve({ message: "OK" });
-                        } else {
-                            console.error(`Error from LINE API: ${response.statusCode} - ${data}`);
-                            reject({ message: "Error sending message to LINE API", details: data });
-                        }
-                    });
-                });
-
-                request.on("error", (err) => {
-                    console.error("Error sending message:", err);
-                    reject({ message: "Error sending message to LINE API", details: err.message });
-                });
-
-                request.write(dataString);
-                request.end();
-            });
-
-            return NextResponse.json(responseBody, { status: 200 });
-        } catch (error) {
-            return NextResponse.json(error, { status: 500 });
+    for (const event of events) {
+        if (event.type === 'message' && event.message.type === 'text') {
+            const replyToken = event.replyToken;
+            const userMessage = event.message.text;
+            const botReply = `You said: ${userMessage}`;
+            await replyMessage(replyToken, botReply);
         }
     }
+
+    return new Response(JSON.stringify({ message: 'OK', events: events }), { status: 200 });
 }
