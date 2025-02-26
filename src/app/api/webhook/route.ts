@@ -34,46 +34,37 @@ export async function POST(req: NextRequest) {
             method: "POST",
             headers,
         };
+        try {
+            const responseBody = await new Promise((resolve, reject) => {
+                const request = https.request(webhookOptions, (response) => {
+                    let data = "";
 
-        const request = https.request(webhookOptions, (response) => {
-            let data = "";
-            response.on("data", (chunk) => {
-                data += chunk;
+                    response.on("data", (chunk) => {
+                        data += chunk;
+                    });
+
+                    response.on("end", () => {
+                        if (response.statusCode === 200) {
+                            resolve({ message: "OK" });
+                        } else {
+                            console.error(`Error from LINE API: ${response.statusCode} - ${data}`);
+                            reject({ message: "Error sending message to LINE API", details: data });
+                        }
+                    });
+                });
+
+                request.on("error", (err) => {
+                    console.error("Error sending message:", err);
+                    reject({ message: "Error sending message to LINE API", details: err.message });
+                });
+
+                request.write(dataString);
+                request.end();
             });
-            response.on("end", () => {
-                console.log("LINE API response:", data);
-                if (response.statusCode !== 200) {
-                    console.error(`Error from LINE API: ${response.statusCode} - ${data}`);
-                    return NextResponse.json(
-                        { message: "Error sending message to LINE API" },
-                        { status: 500 }
-                    );
-                }
-            });
-        });
 
-        request.on("error", (err) => {
-            console.error("Error sending message:", err);
-            return NextResponse.json(
-                { message: "Error sending message to LINE API" },
-                { status: 500 }
-            );
-        });
-
-        request.write(dataString);
-        request.end();
-
-        // Return a response only after processing is complete
-        return NextResponse.json(
-            {
-                message: "OK",
-            },
-            { status: 200 }
-        );
+            return NextResponse.json(responseBody, { status: 200 });
+        } catch (error) {
+            return NextResponse.json(error, { status: 500 });
+        }
     }
-
-    return NextResponse.json(
-        { message: "Invalid event type" },
-        { status: 400 }
-    );
 }
