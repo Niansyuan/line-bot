@@ -1,6 +1,12 @@
 import https from "https";
 import { NextResponse, type NextRequest } from "next/server";
 
+export const config = {
+    api: {
+        bodyParser: false, // line middleware 內會去轉換 req.body，因此這邊不需要再進行 bodyParser
+    },
+}
+
 export async function GET() {
     return NextResponse.json(
         {
@@ -11,10 +17,21 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-    const body = await req.json();
-    const event = body.events[0];
+    // @ts-expect-error events
+    const events = req?.body?.events || [];
+    const event = events[0];
 
-    if (event.type === "message") {
+    if (!events.length) {
+        return NextResponse.json(
+            {
+                message: "No event data",
+                test: process.env.NEXT_PUBLIC_LINE_ACCESS_TOKEN
+            },
+            { status: 400 }
+        );
+    }
+
+    if (event && event.type === "message") {
         const dataString = JSON.stringify({
             replyToken: event.replyToken,
             messages: [
@@ -25,7 +42,7 @@ export async function POST(req: NextRequest) {
 
         const headers = {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.LINE_ACCESS_TOKEN}`,
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_LINE_ACCESS_TOKEN}`,
         };
 
         const webhookOptions = {
@@ -33,6 +50,7 @@ export async function POST(req: NextRequest) {
             path: "/v2/bot/message/reply",
             method: "POST",
             headers,
+            body: dataString,
         };
         try {
             const responseBody = await new Promise((resolve, reject) => {
