@@ -11,7 +11,6 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-    // Now Next.js will automatically parse the body for you
     const body = await req.json();
     const event = body.events[0];
 
@@ -43,21 +42,38 @@ export async function POST(req: NextRequest) {
             });
             response.on("end", () => {
                 console.log("LINE API response:", data);
+                if (response.statusCode !== 200) {
+                    console.error(`Error from LINE API: ${response.statusCode} - ${data}`);
+                    return NextResponse.json(
+                        { message: "Error sending message to LINE API" },
+                        { status: 500 }
+                    );
+                }
             });
         });
 
         request.on("error", (err) => {
             console.error("Error sending message:", err);
+            return NextResponse.json(
+                { message: "Error sending message to LINE API" },
+                { status: 500 }
+            );
         });
 
         request.write(dataString);
         request.end();
+
+        // Return a response only after processing is complete
+        return NextResponse.json(
+            {
+                message: "OK",
+            },
+            { status: 200 }
+        );
     }
 
-    return new NextResponse(JSON.stringify({ message: "Success" }), {
-        status: 200,
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
+    return NextResponse.json(
+        { message: "Invalid event type" },
+        { status: 400 }
+    );
 }
