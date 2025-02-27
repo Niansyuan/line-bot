@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { handleReplyText } from './handleReplyText';
 import type { BotReply } from './type';
 
-const LINE_ACCESS_TOKEN = process.env.LINE_ACCESS_TOKEN || 'RyrozkcGnn2S/lOsSfcVniY8qCDRL41RmuIH/hZNm06W3ylh8Zm491vdvKJBJUycpR4g7C96eVEc9PFh4pc47sgxIEKJjOpk5aE+RZBtdVmqPPK1T2kVx1zaYBmn/bcl6ZCb4j4IGZ7zAVewnu2ZvAdB04t89/1O/w1cDnyilFU=';
+const LINE_ACCESS_TOKEN = process.env.NEXT_PUBLIC_LINE_ACCESS_TOKEN;
 
 export async function GET() {
     return NextResponse.json(
