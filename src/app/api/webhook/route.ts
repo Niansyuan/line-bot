@@ -20,7 +20,7 @@ async function replyMessage(
     const url = 'https://api.line.me/v2/bot/message/reply';
     const body = JSON.stringify({
         replyToken,
-        messages: [{ type: 'text', text: `Whiskey: ${reply.text}` }],
+        messages: [{ type: 'text', text: `Whiskey: ${reply.text}`, emojis: reply.emojis }],
     });
 
     const response = await fetch(url, {

@@ -17,8 +17,8 @@ export const handleReplyText = (message: string) => {
 
     if (isSaidHello) {
         return {
-            text: '汪!', emojis: [{
-                index: 0,
+            text: '汪! $', emojis: [{
+                index: 3,
                 productId: '5ac21184040ab15980c9b43a',
                 emojiId: '018'
             }]
@@ -26,8 +26,8 @@ export const handleReplyText = (message: string) => {
     }
     if (isSaidBye) {
         return {
-            text: '汪嗚', emojis: [{
-                index: 0,
+            text: '汪嗚 $', emojis: [{
+                index: 3,
                 productId: '5ac21184040ab15980c9b43a',
                 emojiId: '020'
             }]
@@ -35,9 +35,9 @@ export const handleReplyText = (message: string) => {
     }
     if (isSaidDog) {
         return {
-            text: '汪',
+            text: '汪 $',
             emojis: [{
-                index: 0,
+                index: 2,
                 productId: '670e0cce840a8236ddd4ee4c',
                 emojiId: '165'
             }]
@@ -45,9 +45,9 @@ export const handleReplyText = (message: string) => {
     }
 
     return {
-        text: '蛤',
+        text: '蛤 $',
         emojis: [{
-            index: 0,
+            index: 2,
             productId: '5ac1de17040ab15980c9b438',
             emojiId: getRandomEmoji(194)
         }]
