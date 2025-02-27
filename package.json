@@ -9,10 +9,13 @@
         "lint": "next lint"
     },
     "dependencies": {
+        "@google/generative-ai": "^0.22.0",
         "@line/bot-sdk": "^9.7.1",
+        "classnames": "^2.5.1",
         "next": "15.1.7",
         "react": "^19.0.0",
-        "react-dom": "^19.0.0"
+        "react-dom": "^19.0.0",
+        "sass": "^1.85.1"
     },
     "devDependencies": {
         "@eslint/eslintrc": "^3",
