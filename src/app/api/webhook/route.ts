@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { handleReplyText } from './handleReplyText';
+import type { BotReply } from './type';
 
 const LINE_ACCESS_TOKEN = process.env.LINE_ACCESS_TOKEN || 'RyrozkcGnn2S/lOsSfcVniY8qCDRL41RmuIH/hZNm06W3ylh8Zm491vdvKJBJUycpR4g7C96eVEc9PFh4pc47sgxIEKJjOpk5aE+RZBtdVmqPPK1T2kVx1zaYBmn/bcl6ZCb4j4IGZ7zAVewnu2ZvAdB04t89/1O/w1cDnyilFU=';
 
@@ -14,13 +15,12 @@ export async function GET() {
 
 async function replyMessage(
     replyToken: string,
-    reply: { text: string; emojis?: { index: number; productId: string; emojiId: string }[] },
+    reply: BotReply,
 ) {
     const url = 'https://api.line.me/v2/bot/message/reply';
-
     const body = JSON.stringify({
         replyToken,
-        messages: [{ type: 'text', text: reply.text, emojis: reply.emojis }],
+        messages: [{ type: 'text', text: `Whiskey: ${reply.text}` }],
     });
 
     const response = await fetch(url, {
@@ -32,7 +32,7 @@ async function replyMessage(
         body,
     });
 
-    return response.json();
+    return await response.json();
 }
 
 export async function POST(req: Request) {
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
         if (event.type === 'message' && event.message.type === 'text') {
             const replyToken = event.replyToken;
             const userMessage = event.message.text;
-            const botReply = await handleReplyText(userMessage);
+            const botReply = handleReplyText(userMessage);
             await replyMessage(replyToken, botReply);
         }
     }

@@ -1,3 +1,4 @@
+
 const HelloWords = ["hello", "hi", "hey", "你好", "嗨"];
 const ByeWords = ["bye", "goodbye", "see you", "掰", "再見", "拜拜", "掰"];
 const DogWords = ["狗", "dog", "汪", "旺", "旺旺", "狗狗", "小", "威", "基"];
@@ -6,7 +7,7 @@ const getRandomEmoji = (emojiIdAmount: number) => {
     return Math.floor(Math.random() * emojiIdAmount).toString().padStart(3, '0');
 }
 
-export const handleReplyText = async (message: string) => {
+export const handleReplyText = (message: string) => {
     const messageText = message.toLowerCase();
 
     const isSaidHello = HelloWords.some(word => messageText.includes(word));
